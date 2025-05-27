@@ -5,13 +5,12 @@ const cors = require('cors');
 
 const app = express();
 const PORT = 3000;
-const JSON_FILE_PATH = path.join(__dirname, 'data/data.json');
+const DATA_PREFIX = 'ow2_s';
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.static('.')); // Serve static files from current directory
-// Neue Route im server.js
 const dataDir = path.join(__dirname, 'data');
 
 // Route to retrieve all existing seasons
@@ -19,11 +18,12 @@ app.get('/api/seasons', async (req, res) => {
     try {
         const files = await fs.readdir(dataDir);
         const seasons = files
-            .filter(file => file.startsWith('ow2_s') && file.endsWith('.json'))
+            .filter(file => file.startsWith(DATA_PREFIX) && file.endsWith('.json'))
             .map(file => ({
                 id: file.replace('.json', ''),
-                name: `Season ${file.replace('ow2_s', '').replace('.json', '')}`
-            }));
+                name: `Season ${file.replace(DATA_PREFIX, '').replace('.json', '')}`
+            }))
+            .sort();
         res.json(seasons);
     } catch (error) {
         res.status(500).json({error: 'Failed to get seasons'});
@@ -35,7 +35,7 @@ app.post('/api/seasons', async (req, res) => {
     try {
         const {seasonNumber} = req.body;
         const templateData = await fs.readFile(path.join(dataDir, 'data.json'), 'utf8');
-        const newSeasonFile = `ow2_s${seasonNumber}.json`;
+        const newSeasonFile = `${DATA_PREFIX}${seasonNumber}.json`;
         await fs.writeFile(path.join(dataDir, newSeasonFile), templateData);
         res.json({success: true, message: 'Season created successfully'});
     } catch (error) {
