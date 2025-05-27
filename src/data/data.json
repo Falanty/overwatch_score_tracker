@@ -1,0 +1,466 @@
+{
+  "name": "All Maps",
+  "children": [
+    {
+      "name": "Push",
+      "children": [
+        {
+          "name": "Colosseo",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            },
+            {
+              "name": "draw",
+              "size": 0
+            }
+          ]
+        },
+        {
+          "name": "Esperança",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            },
+            {
+              "name": "draw",
+              "size": 0
+            }
+          ]
+        },
+        {
+          "name": "New Queen Street",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            },
+            {
+              "name": "draw",
+              "size": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Hybrid",
+      "children": [
+        {
+          "name": "Blizzard World",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            },
+            {
+              "name": "draw",
+              "size": 0
+            }
+          ]
+        },
+        {
+          "name": "Eichenwalde",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            },
+            {
+              "name": "draw",
+              "size": 0
+            }
+          ]
+        },
+        {
+          "name": "Hollywood",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            },
+            {
+              "name": "draw",
+              "size": 0
+            }
+          ]
+        },
+        {
+          "name": "King's Row",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            },
+            {
+              "name": "draw",
+              "size": 0
+            }
+          ]
+        },
+        {
+          "name": "Midtown",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            },
+            {
+              "name": "draw",
+              "size": 0
+            }
+          ]
+        },
+        {
+          "name": "Numbani",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            },
+            {
+              "name": "draw",
+              "size": 0
+            }
+          ]
+        },
+        {
+          "name": "Paraíso",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            },
+            {
+              "name": "draw",
+              "size": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Escort",
+      "children": [
+        {
+          "name": "Circuit Royal",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            },
+            {
+              "name": "draw",
+              "size": 0
+            }
+          ]
+        },
+        {
+          "name": "Dorado",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            },
+            {
+              "name": "draw",
+              "size": 0
+            }
+          ]
+        },
+        {
+          "name": "Havana",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            },
+            {
+              "name": "draw",
+              "size": 0
+            }
+          ]
+        },
+        {
+          "name": "Junkertown",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            },
+            {
+              "name": "draw",
+              "size": 0
+            }
+          ]
+        },
+        {
+          "name": "Rialto",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            },
+            {
+              "name": "draw",
+              "size": 0
+            }
+          ]
+        },
+        {
+          "name": "Route 66",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            },
+            {
+              "name": "draw",
+              "size": 0
+            }
+          ]
+        },
+        {
+          "name": "Shambali Monastery",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            },
+            {
+              "name": "draw",
+              "size": 0
+            }
+          ]
+        },
+        {
+          "name": "Watchpoint Gibraltar",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            },
+            {
+              "name": "draw",
+              "size": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Control",
+      "children": [
+        {
+          "name": "Antarctic Peninsula",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            }
+          ]
+        },
+        {
+          "name": "Busan",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            }
+          ]
+        },
+        {
+          "name": "Ilios",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            }
+          ]
+        },
+        {
+          "name": "Lijiang Tower",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            }
+          ]
+        },
+        {
+          "name": "Nepal",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            }
+          ]
+        },
+        {
+          "name": "Oasis",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            }
+          ]
+        },
+        {
+          "name": "Samoa",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Flashpoint",
+      "children": [
+        {
+          "name": "New Junk City",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            }
+          ]
+        },
+        {
+          "name": "Runasapi",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            }
+          ]
+        },
+        {
+          "name": "Suravasa",
+          "children": [
+            {
+              "name": "won",
+              "size": 0
+            },
+            {
+              "name": "lost",
+              "size": 0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
