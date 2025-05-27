@@ -2,992 +2,996 @@
 <html>
 <head>
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      font-size: 14px;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      height: 100vh;
-      background: linear-gradient(135deg, #0f1419 0%, #1a1a2e 50%, #16213e 100%);
-    }
-
-    #chart-container {
-      flex: 1;
-      position: relative;
-      background: radial-gradient(circle at center, rgba(249, 158, 84, 0.05) 0%, transparent 70%);
-    }
-
-    #sidebar {
-      width: 300px;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-      border-left: 1px solid #f99e54;
-      padding: 15px;
-      overflow-y: auto;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-    }
-
-    #sidebar h2 {
-      margin: 0 0 15px 0;
-      color: #f99e54;
-      border-bottom: 2px solid #f99e54;
-      padding-bottom: 10px;
-      text-shadow: 0 0 3px rgba(249, 158, 84, 0.3);
-    }
-
-    #search-container {
-      margin-bottom: 15px;
-      position: relative;
-    }
-
-    #search-input {
-      width: 100%;
-      padding: 12px 40px 12px 16px;
-      border: 2px solid rgba(249, 158, 84, 0.3);
-      border-radius: 25px;
-      background: rgba(255, 255, 255, 0.1);
-      color: #fff;
-      font-size: 14px;
-      box-sizing: border-box;
-      backdrop-filter: blur(5px);
-      transition: all 0.3s ease;
-    }
-
-    #search-input:focus {
-      outline: none;
-      border-color: #f99e54;
-      background: rgba(255, 255, 255, 0.15);
-      box-shadow: 0 0 10px rgba(249, 158, 84, 0.3);
-    }
-
-    #search-input::placeholder {
-      color: rgba(255, 255, 255, 0.6);
-    }
-
-    #search-clear {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      color: #f99e54;
-      cursor: pointer;
-      font-size: 18px;
-      width: 24px;
-      height: 24px;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      transition: all 0.3s ease;
-    }
-
-    #search-clear:hover {
-      background: rgba(249, 158, 84, 0.2);
-    }
-
-    .toggle-container {
-      display: flex;
-      align-items: center;
-      margin: 15px 0;
-      padding: 10px 16px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 2px solid rgba(249, 158, 84, 0.3);
-      border-radius: 25px;
-      backdrop-filter: blur(5px);
-      transition: all 0.3s ease;
-    }
-
-    .toggle-container:hover {
-      border-color: rgba(249, 158, 84, 0.5);
-      background: rgba(255, 255, 255, 0.12);
-    }
-
-    .toggle-switch {
-      position: relative;
-      width: 40px;
-      height: 20px;
-      margin-right: 12px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 10px;
-      transition: all 0.3s ease;
-      border: 1px solid rgba(249, 158, 84, 0.3);
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-
-    .toggle-switch.active {
-      background: linear-gradient(135deg, #f99e54, #ff6b35);
-      border-color: #f99e54;
-      box-shadow: 0 0 8px rgba(249, 158, 84, 0.4);
-    }
-
-    .toggle-slider {
-      position: absolute;
-      top: 1px;
-      left: 1px;
-      width: 16px;
-      height: 16px;
-      background: #fff;
-      border-radius: 50%;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    }
-
-    .toggle-switch.active .toggle-slider {
-      transform: translateX(20px);
-    }
-
-    .toggle-label {
-      color: #fff;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 500;
-      user-select: none;
-      flex: 1;
-    }
-
-    .map-category {
-      margin-bottom: 25px;
-      transition: opacity 0.3s ease;
-    }
-
-    .map-category.hidden {
-      display: none;
-    }
-
-    .map-category h3 {
-      color: #fff;
-      margin-bottom: 15px;
-      background: linear-gradient(90deg, #f99e54, #ff6b35);
-      padding: 8px 12px;
-      border-radius: 6px;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-      box-shadow: 0 2px 5px rgba(249, 158, 84, 0.2);
-      cursor: pointer;
-      user-select: none;
-      position: relative;
-      transition: all 0.3s ease;
-    }
-
-    .map-category h3:hover {
-      background: linear-gradient(90deg, #ff6b35, #f99e54);
-    }
-
-    .map-category h3::after {
-      content: '▼';
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      transition: transform 0.3s ease;
-      font-size: 12px;
-    }
-
-    .map-category.collapsed h3::after {
-      transform: translateY(-50%) rotate(-90deg);
-    }
-
-    .map-category-content {
-      transition: all 0.3s ease;
-      overflow: hidden;
-    }
-
-    .map-category.collapsed .map-category-content {
-      max-height: 0;
-      opacity: 0;
-      margin-top: 0;
-    }
-
-    .category-stats {
-      font-size: 11px;
-      color: #e0e0e0;
-      margin-top: 4px;
-      opacity: 0.9;
-    }
-
-    .map-item {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(249, 158, 84, 0.3);
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 10px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-      backdrop-filter: blur(5px);
-      transition: opacity 0.3s ease;
-    }
-
-    .map-item.hidden {
-      display: none;
-    }
-
-    .map-name {
-      font-weight: bold;
-      margin-bottom: 8px;
-      color: #fff;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.7);
-    }
-
-    .button-group {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .stat-button {
-      padding: 6px 10px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 11px;
-      font-weight: bold;
-      min-width: 65px;
-      transition: all 0.3s ease;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    }
-
-    .win-btn, .won-btn {
-      background: linear-gradient(135deg, #28a745, #20c997);
-      color: white;
-      border: 1px solid #20c997;
-    }
-
-    .win-btn:hover, .won-btn:hover {
-      background: linear-gradient(135deg, #20c997, #17a2b8);
-      transform: translateY(-1px);
-      box-shadow: 0 3px 8px rgba(40, 167, 69, 0.4);
-    }
-
-    .loss-btn, .lost-btn {
-      background: linear-gradient(135deg, #dc3545, #c82333);
-      color: white;
-      border: 1px solid #c82333;
-    }
-
-    .loss-btn:hover, .lost-btn:hover {
-      background: linear-gradient(135deg, #c82333, #bd2130);
-      transform: translateY(-1px);
-      box-shadow: 0 3px 8px rgba(220, 53, 69, 0.4);
-    }
-
-    .draw-btn {
-      background: linear-gradient(135deg, #f99e54, #ff6b35);
-      color: white;
-      border: 1px solid #ff6b35;
-    }
-
-    .draw-btn:hover {
-      background: linear-gradient(135deg, #ff6b35, #f77f00);
-      transform: translateY(-1px);
-      box-shadow: 0 3px 8px rgba(249, 158, 84, 0.4);
-    }
-
-    .stats-display {
-      font-size: 11px;
-      color: #e0e0e0;
-      margin-top: 8px;
-      padding: 4px 8px;
-      background: rgba(0, 0, 0, 0.4);
-      border-radius: 4px;
-      border-left: 3px solid #f99e54;
-    }
-
-    .no-results {
-      text-align: center;
-      color: rgba(255, 255, 255, 0.6);
-      font-style: italic;
-      margin-top: 30px;
-      padding: 20px;
-    }
-
-    .slice {
-      cursor: pointer;
-    }
-
-    .slice .main-arc {
-      stroke: #21282f;
-      stroke-width: 1px;
-    }
-
-    .slice .hidden-arc {
-      fill: none;
-    }
-
-    .slice text {
-      pointer-events: none;
-      dominant-baseline: middle;
-      text-anchor: middle;
-      fill: #fff;
-      font-weight: 600;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.7);
-      font-size: 12px;
-    }
-
-    .slice:hover .main-arc {
-      filter: drop-shadow(0 0 5px rgba(249, 158, 84, 0.3)) brightness(1.03);
-    }
-
-    /* Ensure text readability */
-    .slice text {
-      stroke: rgba(0,0,0,0.8);
-      stroke-width: 0.5px;
-      paint-order: stroke fill;
-    }
-
-    .toast-container {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 1000;
-    }
-
-    .toast {
-      padding: 12px 24px;
-      margin-bottom: 10px;
-      border-radius: 8px;
-      color: white;
-      font-weight: 500;
-      opacity: 0;
-      transform: translateY(100%);
-      animation: slideIn 0.3s ease forwards;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .toast-success {
-      background: linear-gradient(135deg, #2ecc71, #27ae60);
-      border-left: 4px solid #27ae60;
-    }
-
-    .toast-error {
-      background: linear-gradient(135deg, #e74c3c, #c0392b);
-      border-left: 4px solid #c0392b;
-    }
-
-    @keyframes slideIn {
-      to {
-        opacity: 1;
-        transform: translateY(0);
+      body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          font-size: 14px;
+          margin: 0;
+          padding: 0;
+          display: flex;
+          height: 100vh;
+          background: linear-gradient(135deg, #0f1419 0%, #1a1a2e 50%, #16213e 100%);
       }
-    }
 
-    @keyframes fadeOut {
-      to {
-        opacity: 0;
-        transform: translateY(100%);
+      #chart-container {
+          flex: 1;
+          position: relative;
+          background: radial-gradient(circle at center, rgba(249, 158, 84, 0.05) 0%, transparent 70%);
       }
-    }
+
+      #sidebar {
+          width: 300px;
+          background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+          border-left: 1px solid #f99e54;
+          padding: 15px;
+          overflow-y: auto;
+          box-sizing: border-box;
+          display: flex;
+          flex-direction: column;
+      }
+
+      #sidebar h2 {
+          margin: 0 0 15px 0;
+          color: #f99e54;
+          border-bottom: 2px solid #f99e54;
+          padding-bottom: 10px;
+          text-shadow: 0 0 3px rgba(249, 158, 84, 0.3);
+      }
+
+      #search-container {
+          margin-bottom: 15px;
+          position: relative;
+      }
+
+      #search-input {
+          width: 100%;
+          padding: 12px 40px 12px 16px;
+          border: 2px solid rgba(249, 158, 84, 0.3);
+          border-radius: 25px;
+          background: rgba(255, 255, 255, 0.1);
+          color: #fff;
+          font-size: 14px;
+          box-sizing: border-box;
+          backdrop-filter: blur(5px);
+          transition: all 0.3s ease;
+      }
+
+      #search-input:focus {
+          outline: none;
+          border-color: #f99e54;
+          background: rgba(255, 255, 255, 0.15);
+          box-shadow: 0 0 10px rgba(249, 158, 84, 0.3);
+      }
+
+      #search-input::placeholder {
+          color: rgba(255, 255, 255, 0.6);
+      }
+
+      #search-clear {
+          position: absolute;
+          right: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: none;
+          border: none;
+          color: #f99e54;
+          cursor: pointer;
+          font-size: 18px;
+          width: 24px;
+          height: 24px;
+          display: none;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          transition: all 0.3s ease;
+      }
+
+      #search-clear:hover {
+          background: rgba(249, 158, 84, 0.2);
+      }
+
+      .toggle-container {
+          display: flex;
+          align-items: center;
+          margin: 15px 0;
+          padding: 10px 16px;
+          background: rgba(255, 255, 255, 0.08);
+          border: 2px solid rgba(249, 158, 84, 0.3);
+          border-radius: 25px;
+          backdrop-filter: blur(5px);
+          transition: all 0.3s ease;
+      }
+
+      .toggle-container:hover {
+          border-color: rgba(249, 158, 84, 0.5);
+          background: rgba(255, 255, 255, 0.12);
+      }
+
+      .toggle-switch {
+          position: relative;
+          width: 40px;
+          height: 20px;
+          margin-right: 12px;
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 10px;
+          transition: all 0.3s ease;
+          border: 1px solid rgba(249, 158, 84, 0.3);
+          cursor: pointer;
+          flex-shrink: 0;
+      }
+
+      .toggle-switch.active {
+          background: linear-gradient(135deg, #f99e54, #ff6b35);
+          border-color: #f99e54;
+          box-shadow: 0 0 8px rgba(249, 158, 84, 0.4);
+      }
+
+      .toggle-slider {
+          position: absolute;
+          top: 1px;
+          left: 1px;
+          width: 16px;
+          height: 16px;
+          background: #fff;
+          border-radius: 50%;
+          transition: all 0.3s ease;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .toggle-switch.active .toggle-slider {
+          transform: translateX(20px);
+      }
+
+      .toggle-label {
+          color: #fff;
+          cursor: pointer;
+          font-size: 13px;
+          font-weight: 500;
+          user-select: none;
+          flex: 1;
+      }
+
+      .map-category {
+          margin-bottom: 25px;
+          transition: opacity 0.3s ease;
+      }
+
+      .map-category.hidden {
+          display: none;
+      }
+
+      .map-category h3 {
+          color: #fff;
+          margin-bottom: 15px;
+          background: linear-gradient(90deg, #f99e54, #ff6b35);
+          padding: 8px 12px;
+          border-radius: 6px;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+          box-shadow: 0 2px 5px rgba(249, 158, 84, 0.2);
+          cursor: pointer;
+          user-select: none;
+          position: relative;
+          transition: all 0.3s ease;
+      }
+
+      .map-category h3:hover {
+          background: linear-gradient(90deg, #ff6b35, #f99e54);
+      }
+
+      .map-category h3::after {
+          content: '▼';
+          position: absolute;
+          right: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          transition: transform 0.3s ease;
+          font-size: 12px;
+      }
+
+      .map-category.collapsed h3::after {
+          transform: translateY(-50%) rotate(-90deg);
+      }
+
+      .map-category-content {
+          transition: all 0.3s ease;
+          overflow: hidden;
+      }
+
+      .map-category.collapsed .map-category-content {
+          max-height: 0;
+          opacity: 0;
+          margin-top: 0;
+      }
+
+      .category-stats {
+          font-size: 11px;
+          color: #e0e0e0;
+          margin-top: 4px;
+          opacity: 0.9;
+      }
+
+      .map-item {
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(249, 158, 84, 0.3);
+          border-radius: 8px;
+          padding: 12px;
+          margin-bottom: 10px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+          backdrop-filter: blur(5px);
+          transition: opacity 0.3s ease;
+      }
+
+      .map-item.hidden {
+          display: none;
+      }
+
+      .map-name {
+          font-weight: bold;
+          margin-bottom: 8px;
+          color: #fff;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+      }
+
+      .button-group {
+          display: flex;
+          gap: 6px;
+          align-items: center;
+      }
+
+      .stat-button {
+          padding: 6px 10px;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 11px;
+          font-weight: bold;
+          min-width: 65px;
+          transition: all 0.3s ease;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      }
+
+      .win-btn, .won-btn {
+          background: linear-gradient(135deg, #28a745, #20c997);
+          color: white;
+          border: 1px solid #20c997;
+      }
+
+      .win-btn:hover, .won-btn:hover {
+          background: linear-gradient(135deg, #20c997, #17a2b8);
+          transform: translateY(-1px);
+          box-shadow: 0 3px 8px rgba(40, 167, 69, 0.4);
+      }
+
+      .loss-btn, .lost-btn {
+          background: linear-gradient(135deg, #dc3545, #c82333);
+          color: white;
+          border: 1px solid #c82333;
+      }
+
+      .loss-btn:hover, .lost-btn:hover {
+          background: linear-gradient(135deg, #c82333, #bd2130);
+          transform: translateY(-1px);
+          box-shadow: 0 3px 8px rgba(220, 53, 69, 0.4);
+      }
+
+      .draw-btn {
+          background: linear-gradient(135deg, #f99e54, #ff6b35);
+          color: white;
+          border: 1px solid #ff6b35;
+      }
+
+      .draw-btn:hover {
+          background: linear-gradient(135deg, #ff6b35, #f77f00);
+          transform: translateY(-1px);
+          box-shadow: 0 3px 8px rgba(249, 158, 84, 0.4);
+      }
+
+      .stats-display {
+          font-size: 11px;
+          color: #e0e0e0;
+          margin-top: 8px;
+          padding: 4px 8px;
+          background: rgba(0, 0, 0, 0.4);
+          border-radius: 4px;
+          border-left: 3px solid #f99e54;
+      }
+
+      .no-results {
+          text-align: center;
+          color: rgba(255, 255, 255, 0.6);
+          font-style: italic;
+          margin-top: 30px;
+          padding: 20px;
+      }
+
+      .slice {
+          cursor: pointer;
+      }
+
+      .slice .main-arc {
+          stroke: #21282f;
+          stroke-width: 1px;
+      }
+
+      .slice .hidden-arc {
+          fill: none;
+      }
+
+      .slice text {
+          pointer-events: none;
+          dominant-baseline: middle;
+          text-anchor: middle;
+          fill: #fff;
+          font-weight: 600;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+          font-size: 12px;
+      }
+
+      .slice:hover .main-arc {
+          filter: drop-shadow(0 0 5px rgba(249, 158, 84, 0.3)) brightness(1.03);
+      }
+
+      /* Ensure text readability */
+      .slice text {
+          stroke: rgba(0, 0, 0, 0.8);
+          stroke-width: 0.5px;
+          paint-order: stroke fill;
+      }
+
+      .toast-container {
+          position: fixed;
+          bottom: 20px;
+          right: 20px;
+          z-index: 1000;
+      }
+
+      .toast {
+          padding: 12px 24px;
+          margin-bottom: 10px;
+          border-radius: 8px;
+          color: white;
+          font-weight: 500;
+          opacity: 0;
+          transform: translateY(100%);
+          animation: slideIn 0.3s ease forwards;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .toast-success {
+          background: linear-gradient(135deg, #2ecc71, #27ae60);
+          border-left: 4px solid #27ae60;
+      }
+
+      .toast-error {
+          background: linear-gradient(135deg, #e74c3c, #c0392b);
+          border-left: 4px solid #c0392b;
+      }
+
+      @keyframes slideIn {
+          to {
+              opacity: 1;
+              transform: translateY(0);
+          }
+      }
+
+      @keyframes fadeOut {
+          to {
+              opacity: 0;
+              transform: translateY(100%);
+          }
+      }
   </style>
   <script src='https://d3js.org/d3.v4.min.js'></script>
 </head>
 <body>
-  <div id="season-controls" style="position: fixed; top: 20px; left: 20px; z-index: 1000;">
-    <select id="season-select" style="
+<div id="season-controls" style="position: fixed; top: 20px; left: 20px; z-index: 1000;">
+  <select id="season-select" style="
       padding: 8px;
       border: 2px solid #f99e54;
       background: rgba(26, 26, 46, 0.9);
       color: #fff;
       border-radius: 4px;
       margin-right: 10px;">
-      <option value="data">Select Season</option>
-    </select>
-    <button id="add-season" style="
+    <option value="data">Select Season</option>
+  </select>
+  <button id="add-season" style="
       padding: 8px 16px;
       background: linear-gradient(135deg, #f99e54, #ff6b35);
       border: none;
       color: white;
       border-radius: 4px;
       cursor: pointer;">
-      Add Season
-    </button>
-  </div>
-  <div id="chart-container"></div>
-  <div id="sidebar">
-    <h2>Map Statistics</h2>
+    Add Season
+  </button>
+</div>
+<div id="chart-container"></div>
+<div id="sidebar">
+  <h2>Map Statistics</h2>
 
-    <div class="toggle-container">
-      <div class="toggle-switch" id="toggleSwitch">
-        <div class="toggle-slider"></div>
-      </div>
-      <span class="toggle-label" id="toggleLabel">Enable Smooth Transitions</span>
+  <div class="toggle-container">
+    <div class="toggle-switch" id="toggleSwitch">
+      <div class="toggle-slider"></div>
     </div>
-
-    <div id="search-container">
-      <label for="search-input"></label><input type="text" id="search-input" placeholder="Search maps...">
-      <button id="search-clear">×</button>
-    </div>
-    <div id="map-controls"></div>
-    <div id="no-results" class="no-results" style="display: none;">
-      No maps found matching your search.
-    </div>
+    <span class="toggle-label" id="toggleLabel">Enable Smooth Transitions</span>
   </div>
+
+  <div id="search-container">
+    <label for="search-input"></label><input type="text" id="search-input" placeholder="Search maps...">
+    <button id="search-clear">×</button>
+  </div>
+  <div id="map-controls"></div>
+  <div id="no-results" class="no-results" style="display: none;">
+    No maps found matching your search.
+  </div>
+</div>
 <div class="toast-container"></div>
 <script>
-  // Store the data globally so we can update it
-  let mapData;
+    // Store the data globally so we can update it
+    let mapData;
 
-  // Transition control - now user controllable
-  let transitionEnabled = false;
+    // Transition control - now user controllable
+    let transitionEnabled = false;
 
-  // Chart setup
-  const chartContainer = document.getElementById('chart-container');
-  const containerRect = chartContainer.getBoundingClientRect();
-  const width = containerRect.width;
-  const height = containerRect.height;
-  const maxRadius = (Math.min(width, height) / 2) - 50;
+    // Chart setup
+    const chartContainer = document.getElementById('chart-container');
+    const containerRect = chartContainer.getBoundingClientRect();
+    const width = containerRect.width;
+    const height = containerRect.height;
+    const maxRadius = (Math.min(width, height) / 2) - 50;
 
-  const formatNumber = d3.format(',d');
+    const formatNumber = d3.format(',d');
 
-  const x = d3.scaleLinear()
-    .range([0, 2 * Math.PI])
-    .clamp(true);
+    const x = d3.scaleLinear()
+        .range([0, 2 * Math.PI])
+        .clamp(true);
 
-  const y = d3.scalePow().exponent(0.6)
-    .range([maxRadius*.1, maxRadius])
-    .domain([0, 1]);
+    const y = d3.scalePow().exponent(0.6)
+        .range([maxRadius * .1, maxRadius])
+        .domain([0, 1]);
 
-  const color = d3.scaleOrdinal([
-    '#17a2b8', // Teal
-    '#6f42c1', // Purple
-    '#e83e8c', // Pink
-    '#fd7e14', // Orange variant
-    '#20c997', // Mint green
-    '#6610f2', // Indigo
-    '#28a745', // Green variant
-    '#dc3545', // Red variant
-    '#ffc107', // Yellow
-    '#17a2b8', // Teal variant
-    '#6f42c1', // Purple variant
-    '#e83e8c', // Pink variant
-    '#fd7e14', // Orange
-    '#20c997', // Mint
-    '#6610f2', // Indigo variant
-    '#28a745', // Green for wins
-    '#dc3545', // Red for losses
-    '#f99e54', // Orange for draws
-  ]);
+    const color = d3.scaleOrdinal([
+        '#17a2b8', // Teal
+        '#6f42c1', // Purple
+        '#e83e8c', // Pink
+        '#fd7e14', // Orange variant
+        '#20c997', // Mint green
+        '#6610f2', // Indigo
+        '#28a745', // Green variant
+        '#dc3545', // Red variant
+        '#ffc107', // Yellow
+        '#17a2b8', // Teal variant
+        '#6f42c1', // Purple variant
+        '#e83e8c', // Pink variant
+        '#fd7e14', // Orange
+        '#20c997', // Mint
+        '#6610f2', // Indigo variant
+        '#28a745', // Green for wins
+        '#dc3545', // Red for losses
+        '#f99e54', // Orange for draws
+    ]);
 
-  const partition = d3.partition();
+    const partition = d3.partition();
 
-  const arc = d3.arc()
-    .startAngle(d => x(d.x0))
-    .endAngle(d => x(d.x1))
-    .innerRadius(d => Math.max(0, y(d.y0)))
-    .outerRadius(d => Math.max(0, y(d.y1)));
+    const arc = d3.arc()
+        .startAngle(d => x(d.x0))
+        .endAngle(d => x(d.x1))
+        .innerRadius(d => Math.max(0, y(d.y0)))
+        .outerRadius(d => Math.max(0, y(d.y1)));
 
-  const middleArcLine = d => {
-    const halfPi = Math.PI/2;
-    const angles = [x(d.x0) - halfPi, x(d.x1) - halfPi];
-    const r = Math.max(0, (y(d.y0) + y(d.y1)) / 2);
+    const middleArcLine = d => {
+        const halfPi = Math.PI / 2;
+        const angles = [x(d.x0) - halfPi, x(d.x1) - halfPi];
+        const r = Math.max(0, (y(d.y0) + y(d.y1)) / 2);
 
-    const middleAngle = (angles[1] + angles[0]) / 2;
-    const invertDirection = middleAngle > 0 && middleAngle < Math.PI;
-    if (invertDirection) { angles.reverse(); }
-
-    const path = d3.path();
-    path.arc(0, 0, r, angles[0], angles[1], invertDirection);
-    return path.toString();
-  };
-
-  const textFits = d => {
-    const CHAR_SPACE = 6;
-    const deltaAngle = x(d.x1) - x(d.x0);
-    const r = Math.max(0, (y(d.y0) + y(d.y1)) / 2);
-    const perimeter = r * deltaAngle;
-    return d.data.name.length * CHAR_SPACE < perimeter;
-  };
-
-  const createText = d => {
-    if (d.children)
-      return d.data.name + ": " + (d.data.size ? d.data.size : appendSize(d));
-    return d.data.size;
-  };
-
-  const appendSize = d => {
-    if (!d.children)
-      return d.data.size;
-    let size = 0;
-    d.children.forEach(d => {
-      size += appendSize(d);
-    });
-    return size;
-  };
-
-  const selectColor = d => {
-    return (d.children && d.parent ? d.parent : d).data.name;
-  };
-
-  const svg = d3.select('#chart-container').append('svg')
-    .style('width', '99%')
-    .style('height', '99%')
-    .attr('viewBox', `${-width / 2} ${-height / 2} ${width} ${height}`)
-    .on('click', () => focusOn());
-
-  let currentSlices;
-
-  function updateChart() {
-    const root = d3.hierarchy(mapData);
-    root.sum(d => d.size);
-
-    const slice = svg.selectAll('g.slice')
-      .data(partition(root).descendants());
-
-    slice.exit().remove();
-
-    const newSlice = slice.enter()
-      .append('g').attr('class', 'slice')
-      .on('click', d => {
-        d3.event.stopPropagation();
-        focusOn(d);
-      });
-
-    newSlice.append('title')
-      .text(d => d.data.name + '\n' + formatNumber(d.value));
-
-    newSlice.append('path')
-      .attr('class', 'main-arc')
-      .style('fill', d => d.parent ? color(selectColor(d)) : '#fafafa')
-      .attr('d', arc);
-
-    newSlice.append('path')
-      .attr('class', 'hidden-arc')
-      .attr('id', (_, i) => `hiddenArc${i}`)
-      .attr('d', middleArcLine);
-
-    const text = newSlice.append('text')
-      .attr('display', d => textFits(d) ? null : 'none');
-
-    text.append('textPath')
-      .attr('startOffset','50%')
-      .attr('xlink:href', (_, i) => `#hiddenArc${i}` )
-      .text(d => createText(d));
-
-    // Update existing slices
-    slice.select('path.main-arc')
-      .style('fill', d => d.parent ? color(selectColor(d)) : '#fff')
-      .attr('d', arc);
-
-    slice.select('path.hidden-arc')
-      .attr('d', middleArcLine);
-
-    slice.select('text')
-      .attr('display', d => textFits(d) ? null : 'none');
-
-    slice.select('textPath')
-      .text(d => createText(d));
-
-    slice.select('title')
-      .text(d => d.data.name + '\n' + formatNumber(d.value));
-
-    currentSlices = svg.selectAll('g.slice');
-  }
-
-  function focusOn(d = { x0: 0, x1: 1, y0: 0, y1: 1 }) {
-    if (transitionEnabled) {
-      const transition = svg.transition()
-              .duration(750)
-              .tween('scale', () => {
-                const xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
-                        yd = d3.interpolate(y.domain(), [d.y0, 1]);
-                return t => {
-                  x.domain(xd(t));
-                  y.domain(yd(t));
-                };
-              });
-
-      transition.selectAll('path.main-arc')
-              .attrTween('d', d => () => arc(d));
-
-      transition.selectAll('path.hidden-arc')
-              .attrTween('d', d => () => middleArcLine(d));
-
-      transition.selectAll('text')
-              .attrTween('display', d => () => textFits(d) ? null : 'none');
-    } else {
-      // Instant update without animation
-      x.domain([d.x0, d.x1]);
-      y.domain([d.y0, 1]);
-
-      svg.selectAll('path.main-arc').attr('d', arc);
-      svg.selectAll('path.hidden-arc').attr('d', middleArcLine);
-      svg.selectAll('text').attr('display', d => textFits(d) ? null : 'none');
-    }
-
-    moveStackToFront(d);
-
-    function moveStackToFront(elD) {
-      svg.selectAll('.slice').filter(d => d === elD)
-        .each(function(d) {
-          this.parentNode.appendChild(this);
-          if (d.parent) { moveStackToFront(d.parent); }
-        })
-    }
-  }
-
-  // Setup transition toggle functionality
-  function setupTransitionToggle() {
-    const toggleSwitch = document.getElementById('toggleSwitch');
-    const toggleLabel = document.getElementById('toggleLabel');
-
-    function updateToggle() {
-      let classList = toggleSwitch.classList;
-      transitionEnabled ? classList.remove('active') : classList.add('active');
-      transitionEnabled = !transitionEnabled
-    }
-
-    // Click handlers
-    toggleSwitch.addEventListener('click', () => {
-      updateToggle();
-    });
-
-    toggleLabel.addEventListener('click', () => {
-      updateToggle();
-    });
-  }
-
-  // Function to calculate category win percentage
-  function calculateCategoryWinRate(category) {
-    let totalGames = 0;
-    let totalWins = 0;
-
-    category.children.forEach(map => {
-      map.children.forEach(stat => {
-        totalGames += stat.size;
-        if (stat.name === 'won' || stat.name === 'win') {
-          totalWins += stat.size;
+        const middleAngle = (angles[1] + angles[0]) / 2;
+        const invertDirection = middleAngle > 0 && middleAngle < Math.PI;
+        if (invertDirection) {
+            angles.reverse();
         }
-      });
-    });
 
-    return totalGames > 0 ? (totalWins / totalGames * 100).toFixed(1) : 0;
-  }
+        const path = d3.path();
+        path.arc(0, 0, r, angles[0], angles[1], invertDirection);
+        return path.toString();
+    };
 
-  // Function to update map statistics
-  function updateMapStat(categoryName, mapName, statType) {
-    // Find the category
-    const category = mapData.children.find(cat => cat.name === categoryName);
-    if (!category) return;
+    const textFits = d => {
+        const CHAR_SPACE = 6;
+        const deltaAngle = x(d.x1) - x(d.x0);
+        const r = Math.max(0, (y(d.y0) + y(d.y1)) / 2);
+        const perimeter = r * deltaAngle;
+        return d.data.name.length * CHAR_SPACE < perimeter;
+    };
 
-    // Find the map
-    const map = category.children.find(m => m.name === mapName);
-    if (!map) return;
+    const createText = d => {
+        if (d.children)
+            return d.data.name + ": " + (d.data.size ? d.data.size : appendSize(d));
+        return d.data.size;
+    };
 
-    // Find the stat and increment it
-    const stat = map.children.find(s => s.name === statType);
-    if (stat) {
-      stat.size++;
-      updateChart();
-      updateSidebarStats();
-      saveDataToServer();
-    }
-  }
-
-  // Function to save data to server
-  async function saveDataToServer() {
-    const seasonSelect = document.getElementById('season-select');
-    const selectedSeason = seasonSelect.value;
-    try {
-      const response = await fetch(`/api/data/${selectedSeason}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(mapData)
-      });
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
-      const result = await response.json();
-      console.log('Data saved successfully:', result.message);
-      showToast('Daten erfolgreich gespeichert!', 'success');
-
-    } catch (error) {
-      console.error('Error saving data:', error);
-      showToast('Fehler beim Speichern der Daten!', 'error');
-    }
-  }
-
-  function showToast(message, type = 'success') {
-    const toastContainer = document.querySelector('.toast-container');
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    toast.textContent = message;
-
-    toastContainer.appendChild(toast);
-
-    setTimeout(() => {
-      toast.style.animation = 'fadeOut 0.3s ease forwards';
-      setTimeout(() => {
-        toastContainer.removeChild(toast);
-      }, 300);
-    }, 3000);
-  }
-
-
-  // Function to toggle category collapse
-  function toggleCategory(categoryDiv) {
-    categoryDiv.classList.toggle('collapsed');
-  }
-
-  // Function to filter maps based on search
-  function filterMaps(searchTerm) {
-    const categories = document.querySelectorAll('.map-category');
-    const noResults = document.getElementById('no-results');
-    let hasVisibleMaps = false;
-
-    categories.forEach(categoryDiv => {
-      const maps = categoryDiv.querySelectorAll('.map-item');
-      let categoryHasVisibleMaps = false;
-
-      maps.forEach(mapDiv => {
-        const mapName = mapDiv.querySelector('.map-name').textContent.toLowerCase();
-        const isVisible = mapName.includes(searchTerm.toLowerCase());
-
-        if (isVisible) {
-          mapDiv.classList.remove('hidden');
-          categoryHasVisibleMaps = true;
-          hasVisibleMaps = true;
-        } else {
-          mapDiv.classList.add('hidden');
-        }
-      });
-
-      // Show/hide category based on whether it has visible maps
-      if (searchTerm && !categoryHasVisibleMaps) {
-        categoryDiv.classList.add('hidden');
-      } else {
-        categoryDiv.classList.remove('hidden');
-        // Expand categories when searching
-        if (searchTerm && categoryHasVisibleMaps) {
-          categoryDiv.classList.remove('collapsed');
-        }
-      }
-    });
-
-    // Show/hide no results message
-    noResults.style.display = searchTerm && !hasVisibleMaps ? 'block' : 'none';
-  }
-
-  // Function to create sidebar controls
-  function createSidebar() {
-    const controlsDiv = document.getElementById('map-controls');
-
-    // reset map-controls
-    controlsDiv.innerHTML = '';
-
-    mapData.children.forEach(category => {
-      const categoryDiv = document.createElement('div');
-      categoryDiv.className = 'map-category collapsed'; // Start collapsed
-
-      const categoryTitle = document.createElement('h3');
-
-      // Calculate category win rate
-      const categoryWinRate = calculateCategoryWinRate(category);
-      let totalGames = 0;
-      category.children.forEach(map => {
-        map.children.forEach(stat => {
-          totalGames += stat.size;
+    const appendSize = d => {
+        if (!d.children)
+            return d.data.size;
+        let size = 0;
+        d.children.forEach(d => {
+            size += appendSize(d);
         });
-      });
+        return size;
+    };
 
-      categoryTitle.innerHTML = `
+    const selectColor = d => {
+        return (d.children && d.parent ? d.parent : d).data.name;
+    };
+
+    const svg = d3.select('#chart-container').append('svg')
+        .style('width', '99%')
+        .style('height', '99%')
+        .attr('viewBox', `${-width / 2} ${-height / 2} ${width} ${height}`)
+        .on('click', () => focusOn());
+
+    let currentSlices;
+
+    function updateChart() {
+        const root = d3.hierarchy(mapData);
+        root.sum(d => d.size);
+
+        const slice = svg.selectAll('g.slice')
+            .data(partition(root).descendants());
+
+        slice.exit().remove();
+
+        const newSlice = slice.enter()
+            .append('g').attr('class', 'slice')
+            .on('click', d => {
+                d3.event.stopPropagation();
+                focusOn(d);
+            });
+
+        newSlice.append('title')
+            .text(d => d.data.name + '\n' + formatNumber(d.value));
+
+        newSlice.append('path')
+            .attr('class', 'main-arc')
+            .style('fill', d => d.parent ? color(selectColor(d)) : '#fafafa')
+            .attr('d', arc);
+
+        newSlice.append('path')
+            .attr('class', 'hidden-arc')
+            .attr('id', (_, i) => `hiddenArc${i}`)
+            .attr('d', middleArcLine);
+
+        const text = newSlice.append('text')
+            .attr('display', d => textFits(d) ? null : 'none');
+
+        text.append('textPath')
+            .attr('startOffset', '50%')
+            .attr('xlink:href', (_, i) => `#hiddenArc${i}`)
+            .text(d => createText(d));
+
+        // Update existing slices
+        slice.select('path.main-arc')
+            .style('fill', d => d.parent ? color(selectColor(d)) : '#fff')
+            .attr('d', arc);
+
+        slice.select('path.hidden-arc')
+            .attr('d', middleArcLine);
+
+        slice.select('text')
+            .attr('display', d => textFits(d) ? null : 'none');
+
+        slice.select('textPath')
+            .text(d => createText(d));
+
+        slice.select('title')
+            .text(d => d.data.name + '\n' + formatNumber(d.value));
+
+        currentSlices = svg.selectAll('g.slice');
+    }
+
+    function focusOn(d = {x0: 0, x1: 1, y0: 0, y1: 1}) {
+        if (transitionEnabled) {
+            const transition = svg.transition()
+                .duration(750)
+                .tween('scale', () => {
+                    const xd = d3.interpolate(x.domain(), [d.x0, d.x1]),
+                        yd = d3.interpolate(y.domain(), [d.y0, 1]);
+                    return t => {
+                        x.domain(xd(t));
+                        y.domain(yd(t));
+                    };
+                });
+
+            transition.selectAll('path.main-arc')
+                .attrTween('d', d => () => arc(d));
+
+            transition.selectAll('path.hidden-arc')
+                .attrTween('d', d => () => middleArcLine(d));
+
+            transition.selectAll('text')
+                .attrTween('display', d => () => textFits(d) ? null : 'none');
+        } else {
+            // Instant update without animation
+            x.domain([d.x0, d.x1]);
+            y.domain([d.y0, 1]);
+
+            svg.selectAll('path.main-arc').attr('d', arc);
+            svg.selectAll('path.hidden-arc').attr('d', middleArcLine);
+            svg.selectAll('text').attr('display', d => textFits(d) ? null : 'none');
+        }
+
+        moveStackToFront(d);
+
+        function moveStackToFront(elD) {
+            svg.selectAll('.slice').filter(d => d === elD)
+                .each(function (d) {
+                    this.parentNode.appendChild(this);
+                    if (d.parent) {
+                        moveStackToFront(d.parent);
+                    }
+                })
+        }
+    }
+
+    // Setup transition toggle functionality
+    function setupTransitionToggle() {
+        const toggleSwitch = document.getElementById('toggleSwitch');
+        const toggleLabel = document.getElementById('toggleLabel');
+
+        function updateToggle() {
+            let classList = toggleSwitch.classList;
+            transitionEnabled ? classList.remove('active') : classList.add('active');
+            transitionEnabled = !transitionEnabled
+        }
+
+        // Click handlers
+        toggleSwitch.addEventListener('click', () => {
+            updateToggle();
+        });
+
+        toggleLabel.addEventListener('click', () => {
+            updateToggle();
+        });
+    }
+
+    // Function to calculate category win percentage
+    function calculateCategoryWinRate(category) {
+        let totalGames = 0;
+        let totalWins = 0;
+
+        category.children.forEach(map => {
+            map.children.forEach(stat => {
+                totalGames += stat.size;
+                if (stat.name === 'won' || stat.name === 'win') {
+                    totalWins += stat.size;
+                }
+            });
+        });
+
+        return totalGames > 0 ? (totalWins / totalGames * 100).toFixed(1) : 0;
+    }
+
+    // Function to update map statistics
+    function updateMapStat(categoryName, mapName, statType) {
+        // Find the category
+        const category = mapData.children.find(cat => cat.name === categoryName);
+        if (!category) return;
+
+        // Find the map
+        const map = category.children.find(m => m.name === mapName);
+        if (!map) return;
+
+        // Find the stat and increment it
+        const stat = map.children.find(s => s.name === statType);
+        if (stat) {
+            stat.size++;
+            updateChart();
+            updateSidebarStats();
+            saveDataToServer();
+        }
+    }
+
+    // Function to save data to server
+    async function saveDataToServer() {
+        const seasonSelect = document.getElementById('season-select');
+        const selectedSeason = seasonSelect.value;
+        try {
+            const response = await fetch(`/api/data/${selectedSeason}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(mapData)
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const result = await response.json();
+            console.log('Data saved successfully:', result.message);
+            showToast('Daten erfolgreich gespeichert!', 'success');
+
+        } catch (error) {
+            console.error('Error saving data:', error);
+            showToast('Fehler beim Speichern der Daten!', 'error');
+        }
+    }
+
+    function showToast(message, type = 'success') {
+        const toastContainer = document.querySelector('.toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.textContent = message;
+
+        toastContainer.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.animation = 'fadeOut 0.3s ease forwards';
+            setTimeout(() => {
+                toastContainer.removeChild(toast);
+            }, 300);
+        }, 3000);
+    }
+
+
+    // Function to toggle category collapse
+    function toggleCategory(categoryDiv) {
+        categoryDiv.classList.toggle('collapsed');
+    }
+
+    // Function to filter maps based on search
+    function filterMaps(searchTerm) {
+        const categories = document.querySelectorAll('.map-category');
+        const noResults = document.getElementById('no-results');
+        let hasVisibleMaps = false;
+
+        categories.forEach(categoryDiv => {
+            const maps = categoryDiv.querySelectorAll('.map-item');
+            let categoryHasVisibleMaps = false;
+
+            maps.forEach(mapDiv => {
+                const mapName = mapDiv.querySelector('.map-name').textContent.toLowerCase();
+                const isVisible = mapName.includes(searchTerm.toLowerCase());
+
+                if (isVisible) {
+                    mapDiv.classList.remove('hidden');
+                    categoryHasVisibleMaps = true;
+                    hasVisibleMaps = true;
+                } else {
+                    mapDiv.classList.add('hidden');
+                }
+            });
+
+            // Show/hide category based on whether it has visible maps
+            if (searchTerm && !categoryHasVisibleMaps) {
+                categoryDiv.classList.add('hidden');
+            } else {
+                categoryDiv.classList.remove('hidden');
+                // Expand categories when searching
+                if (searchTerm && categoryHasVisibleMaps) {
+                    categoryDiv.classList.remove('collapsed');
+                }
+            }
+        });
+
+        // Show/hide no results message
+        noResults.style.display = searchTerm && !hasVisibleMaps ? 'block' : 'none';
+    }
+
+    // Function to create sidebar controls
+    function createSidebar() {
+        const controlsDiv = document.getElementById('map-controls');
+
+        // reset map-controls
+        controlsDiv.innerHTML = '';
+
+        mapData.children.forEach(category => {
+            const categoryDiv = document.createElement('div');
+            categoryDiv.className = 'map-category collapsed'; // Start collapsed
+
+            const categoryTitle = document.createElement('h3');
+
+            // Calculate category win rate
+            const categoryWinRate = calculateCategoryWinRate(category);
+            let totalGames = 0;
+            category.children.forEach(map => {
+                map.children.forEach(stat => {
+                    totalGames += stat.size;
+                });
+            });
+
+            categoryTitle.innerHTML = `
         ${category.name} (${category.children.length})
         <div class="category-stats">
           ${totalGames} games • ${categoryWinRate}% win rate
         </div>
       `;
 
-      categoryTitle.addEventListener('click', () => toggleCategory(categoryDiv));
-      categoryDiv.appendChild(categoryTitle);
+            categoryTitle.addEventListener('click', () => toggleCategory(categoryDiv));
+            categoryDiv.appendChild(categoryTitle);
 
-      const categoryContent = document.createElement('div');
-      categoryContent.className = 'map-category-content';
+            const categoryContent = document.createElement('div');
+            categoryContent.className = 'map-category-content';
 
-      category.children.forEach(map => {
-        const mapDiv = document.createElement('div');
-        mapDiv.className = 'map-item';
+            category.children.forEach(map => {
+                const mapDiv = document.createElement('div');
+                mapDiv.className = 'map-item';
 
-        const mapName = document.createElement('div');
-        mapName.className = 'map-name';
-        mapName.textContent = map.name;
-        mapDiv.appendChild(mapName);
+                const mapName = document.createElement('div');
+                mapName.className = 'map-name';
+                mapName.textContent = map.name;
+                mapDiv.appendChild(mapName);
 
-        const buttonGroup = document.createElement('div');
-        buttonGroup.className = 'button-group';
+                const buttonGroup = document.createElement('div');
+                buttonGroup.className = 'button-group';
 
-        // Create buttons based on what stats exist for this map
-        map.children.forEach(stat => {
-          const button = document.createElement('button');
-          button.className = `stat-button ${stat.name}-btn`;
-          button.textContent = `${stat.name.charAt(0).toUpperCase() + stat.name.slice(1)} (${stat.size})`;
-          button.onclick = () => updateMapStat(category.name, map.name, stat.name);
-          buttonGroup.appendChild(button);
+                // Create buttons based on what stats exist for this map
+                map.children.forEach(stat => {
+                    const button = document.createElement('button');
+                    button.className = `stat-button ${stat.name}-btn`;
+                    button.textContent = `${stat.name.charAt(0).toUpperCase() + stat.name.slice(1)} (${stat.size})`;
+                    button.onclick = () => updateMapStat(category.name, map.name, stat.name);
+                    buttonGroup.appendChild(button);
+                });
+
+                mapDiv.appendChild(buttonGroup);
+
+                // Add stats display
+                const statsDisplay = document.createElement('div');
+                statsDisplay.className = 'stats-display';
+                const total = map.children.reduce((sum, stat) => sum + stat.size, 0);
+                const winRate = total > 0 ? ((map.children.find(s => s.name === 'won' || s.name === 'win')?.size || 0) / total * 100).toFixed(1) : 0;
+                statsDisplay.textContent = `Total games: ${total} | Win rate: ${winRate}%`;
+                mapDiv.appendChild(statsDisplay);
+
+                categoryContent.appendChild(mapDiv);
+            });
+
+            categoryDiv.appendChild(categoryContent);
+            controlsDiv.appendChild(categoryDiv);
         });
 
-        mapDiv.appendChild(buttonGroup);
+        // Setup search functionality
+        const searchInput = document.getElementById('search-input');
+        const searchClear = document.getElementById('search-clear');
 
-        // Add stats display
-        const statsDisplay = document.createElement('div');
-        statsDisplay.className = 'stats-display';
-        const total = map.children.reduce((sum, stat) => sum + stat.size, 0);
-        const winRate = total > 0 ? ((map.children.find(s => s.name === 'won' || s.name === 'win')?.size || 0) / total * 100).toFixed(1) : 0;
-        statsDisplay.textContent = `Total games: ${total} | Win rate: ${winRate}%`;
-        mapDiv.appendChild(statsDisplay);
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value;
+            filterMaps(searchTerm);
 
-        categoryContent.appendChild(mapDiv);
-      });
-
-      categoryDiv.appendChild(categoryContent);
-      controlsDiv.appendChild(categoryDiv);
-    });
-
-    // Setup search functionality
-    const searchInput = document.getElementById('search-input');
-    const searchClear = document.getElementById('search-clear');
-
-    searchInput.addEventListener('input', (e) => {
-      const searchTerm = e.target.value;
-      filterMaps(searchTerm);
-
-      // Show/hide clear button
-      searchClear.style.display = searchTerm ? 'flex' : 'none';
-    });
-
-    searchClear.addEventListener('click', () => {
-      searchInput.value = '';
-      filterMaps('');
-      searchClear.style.display = 'none';
-      searchInput.focus();
-    });
-
-    // Clear search on Escape key
-    searchInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        searchInput.value = '';
-        filterMaps('');
-        searchClear.style.display = 'none';
-      }
-    });
-  }
-
-  // Function to update sidebar statistics display
-  function updateSidebarStats() {
-    const statsDisplays = document.querySelectorAll('.stats-display');
-    const buttons = document.querySelectorAll('.stat-button');
-    const categoryTitles = document.querySelectorAll('.map-category h3');
-
-    let buttonIndex = 0;
-    let displayIndex = 0;
-    let categoryIndex = 0;
-
-    mapData.children.forEach(category => {
-      // Update category win rate
-      const categoryWinRate = calculateCategoryWinRate(category);
-      let totalGames = 0;
-      category.children.forEach(map => {
-        map.children.forEach(stat => {
-          totalGames += stat.size;
+            // Show/hide clear button
+            searchClear.style.display = searchTerm ? 'flex' : 'none';
         });
-      });
 
-      if (categoryTitles[categoryIndex]) {
-        categoryTitles[categoryIndex].innerHTML = `
+        searchClear.addEventListener('click', () => {
+            searchInput.value = '';
+            filterMaps('');
+            searchClear.style.display = 'none';
+            searchInput.focus();
+        });
+
+        // Clear search on Escape key
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                searchInput.value = '';
+                filterMaps('');
+                searchClear.style.display = 'none';
+            }
+        });
+    }
+
+    // Function to update sidebar statistics display
+    function updateSidebarStats() {
+        const statsDisplays = document.querySelectorAll('.stats-display');
+        const buttons = document.querySelectorAll('.stat-button');
+        const categoryTitles = document.querySelectorAll('.map-category h3');
+
+        let buttonIndex = 0;
+        let displayIndex = 0;
+        let categoryIndex = 0;
+
+        mapData.children.forEach(category => {
+            // Update category win rate
+            const categoryWinRate = calculateCategoryWinRate(category);
+            let totalGames = 0;
+            category.children.forEach(map => {
+                map.children.forEach(stat => {
+                    totalGames += stat.size;
+                });
+            });
+
+            if (categoryTitles[categoryIndex]) {
+                categoryTitles[categoryIndex].innerHTML = `
           ${category.name}
           <div class="category-stats">
             ${totalGames} games • ${categoryWinRate}% win rate
           </div>
         `;
-        categoryIndex++;
-      }
+                categoryIndex++;
+            }
 
-      category.children.forEach(map => {
-        const total = map.children.reduce((sum, stat) => sum + stat.size, 0);
-        const winRate = total > 0 ? ((map.children.find(s => s.name === 'won' || s.name === 'win')?.size || 0) / total * 100).toFixed(1) : 0;
+            category.children.forEach(map => {
+                const total = map.children.reduce((sum, stat) => sum + stat.size, 0);
+                const winRate = total > 0 ? ((map.children.find(s => s.name === 'won' || s.name === 'win')?.size || 0) / total * 100).toFixed(1) : 0;
 
-        // Update buttons
-        map.children.forEach(stat => {
-          if (buttons[buttonIndex]) {
-            buttons[buttonIndex].textContent = `${stat.name.charAt(0).toUpperCase() + stat.name.slice(1)} (${stat.size})`;
-            buttonIndex++;
-          }
+                // Update buttons
+                map.children.forEach(stat => {
+                    if (buttons[buttonIndex]) {
+                        buttons[buttonIndex].textContent = `${stat.name.charAt(0).toUpperCase() + stat.name.slice(1)} (${stat.size})`;
+                        buttonIndex++;
+                    }
+                });
+
+                // Update stats displays
+                if (statsDisplays[displayIndex]) {
+                    statsDisplays[displayIndex].textContent = `Total games: ${total} | Win rate: ${winRate}%`;
+                    displayIndex++;
+                }
+            });
         });
-
-        // Update stats displays
-        if (statsDisplays[displayIndex]) {
-          statsDisplays[displayIndex].textContent = `Total games: ${total} | Win rate: ${winRate}%`;
-          displayIndex++;
-        }
-      });
-    });
-  }
-
-  function init(jsonObj) {
-    mapData = jsonObj;
-    createSidebar();
-    updateChart();
-    setupTransitionToggle();
-  }
-
-  async function loadSeasons() {
-    const response = await fetch('/api/seasons');
-    const seasons = await response.json();
-    const select = document.getElementById('season-select');
-
-    seasons.forEach(season => {
-      const option = document.createElement('option');
-      option.value = season.id;
-      option.textContent = season.name;
-      select.appendChild(option);
-    });
-  }
-
-  document.getElementById('season-select').addEventListener('change', async (e) => {
-    const season = e.target.value;
-    fetch(`/api/data/${season}`)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(jsonObj => {
-        init(jsonObj)
-      })
-      .catch(error => {
-        console.error('Error loading data:', error);
-      });
-  });
-
-  document.getElementById('add-season').addEventListener('click', async () => {
-    const seasonNumber = prompt('Enter the season number (e.g., 16):');
-    if (seasonNumber) {
-      try {
-        const response = await fetch('/api/seasons', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ seasonNumber })
-        });
-
-        if (response.ok) {
-          document.getElementById('season-select').innerHTML = '<option value="data">Select Season</option>';
-          await loadSeasons();
-          showToast('Season created successfully!', 'success');
-        }
-      } catch (error) {
-        showToast('Error creating season!', 'error');
-      }
     }
-  });
 
-  loadSeasons();
+    function init(jsonObj) {
+        mapData = jsonObj;
+        createSidebar();
+        updateChart();
+        setupTransitionToggle();
+    }
+
+    async function loadSeasons() {
+        const response = await fetch('/api/seasons');
+        const seasons = await response.json();
+        const select = document.getElementById('season-select');
+
+        seasons.forEach(season => {
+            const option = document.createElement('option');
+            option.value = season.id;
+            option.textContent = season.name;
+            select.appendChild(option);
+        });
+    }
+
+    document.getElementById('season-select').addEventListener('change', async (e) => {
+        const season = e.target.value;
+        fetch(`/api/data/${season}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(jsonObj => {
+                init(jsonObj)
+            })
+            .catch(error => {
+                console.error('Error loading data:', error);
+            });
+    });
+
+    document.getElementById('add-season').addEventListener('click', async () => {
+        const seasonNumber = prompt('Enter the season number (e.g., 16):');
+        if (seasonNumber) {
+            try {
+                const response = await fetch('/api/seasons', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({seasonNumber})
+                });
+
+                if (response.ok) {
+                    document.getElementById('season-select').innerHTML = '<option value="data">Select Season</option>';
+                    await loadSeasons();
+                    showToast('Season created successfully!', 'success');
+                }
+            } catch (error) {
+                showToast('Error creating season!', 'error');
+            }
+        }
+    });
+
+    loadSeasons();
 </script>
 </body>
 </html>
