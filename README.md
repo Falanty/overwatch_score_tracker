@@ -5,9 +5,8 @@ A web application for manual tracking of Overwatch map statistics with an Expres
 ## Features
 
 - Map statistics visualization
-- Express.js backend for data management
+- Express.js backend for json file data management
 - Interactive user interface
-- Real-time data updates
 - Category-based map filtering
 - Win/Loss/Draw tracking
 
