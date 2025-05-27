@@ -338,10 +338,73 @@
       stroke-width: 0.5px;
       paint-order: stroke fill;
     }
+
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+
+    .toast {
+      padding: 12px 24px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      color: white;
+      font-weight: 500;
+      opacity: 0;
+      transform: translateY(100%);
+      animation: slideIn 0.3s ease forwards;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .toast-success {
+      background: linear-gradient(135deg, #2ecc71, #27ae60);
+      border-left: 4px solid #27ae60;
+    }
+
+    .toast-error {
+      background: linear-gradient(135deg, #e74c3c, #c0392b);
+      border-left: 4px solid #c0392b;
+    }
+
+    @keyframes slideIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        transform: translateY(100%);
+      }
+    }
   </style>
   <script src='https://d3js.org/d3.v4.min.js'></script>
 </head>
 <body>
+  <div id="season-controls" style="position: fixed; top: 20px; left: 20px; z-index: 1000;">
+    <select id="season-select" style="
+      padding: 8px;
+      border: 2px solid #f99e54;
+      background: rgba(26, 26, 46, 0.9);
+      color: #fff;
+      border-radius: 4px;
+      margin-right: 10px;">
+      <option value="data">Select Season</option>
+    </select>
+    <button id="add-season" style="
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #f99e54, #ff6b35);
+      border: none;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;">
+      Add Season
+    </button>
+  </div>
   <div id="chart-container"></div>
   <div id="sidebar">
     <h2>Map Statistics</h2>
@@ -362,7 +425,7 @@
       No maps found matching your search.
     </div>
   </div>
-
+<div class="toast-container"></div>
 <script>
   // Store the data globally so we can update it
   let mapData;
@@ -625,26 +688,47 @@
 
   // Function to save data to server
   async function saveDataToServer() {
+    const seasonSelect = document.getElementById('season-select');
+    const selectedSeason = seasonSelect.value;
     try {
-      const response = await fetch('/api/data', {
+      const response = await fetch(`/api/data/${selectedSeason}`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(mapData)
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error('Network response was not ok');
       }
 
       const result = await response.json();
       console.log('Data saved successfully:', result.message);
+      showToast('Daten erfolgreich gespeichert!', 'success');
+
     } catch (error) {
       console.error('Error saving data:', error);
-      // You could add a visual indicator here to show save failed
+      showToast('Fehler beim Speichern der Daten!', 'error');
     }
   }
+
+  function showToast(message, type = 'success') {
+    const toastContainer = document.querySelector('.toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+
+    toastContainer.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.animation = 'fadeOut 0.3s ease forwards';
+      setTimeout(() => {
+        toastContainer.removeChild(toast);
+      }, 300);
+    }, 3000);
+  }
+
 
   // Function to toggle category collapse
   function toggleCategory(categoryDiv) {
@@ -693,6 +777,9 @@
   // Function to create sidebar controls
   function createSidebar() {
     const controlsDiv = document.getElementById('map-controls');
+
+    // reset map-controls
+    controlsDiv.innerHTML = '';
 
     mapData.children.forEach(category => {
       const categoryDiv = document.createElement('div');
@@ -847,28 +934,60 @@
     setupTransitionToggle();
   }
 
-  // Initialize - Load JSON data from server API
-  fetch('/api/data')
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then(jsonObj => {
-      init(jsonObj)
-    })
-    .catch(error => {
-      console.error('Error loading data:', error);
-      // Fallback: try loading from local file
-      d3.json('data/data.json', (error, jsonObj) => {
-        if (error) {
-          console.error('Error loading local data:', error);
-          return;
-        }
-        init(jsonObj)
-      });
+  async function loadSeasons() {
+    const response = await fetch('/api/seasons');
+    const seasons = await response.json();
+    const select = document.getElementById('season-select');
+
+    seasons.forEach(season => {
+      const option = document.createElement('option');
+      option.value = season.id;
+      option.textContent = season.name;
+      select.appendChild(option);
     });
+  }
+
+  document.getElementById('season-select').addEventListener('change', async (e) => {
+    const season = e.target.value;
+    fetch(`/api/data/${season}`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(jsonObj => {
+        init(jsonObj)
+      })
+      .catch(error => {
+        console.error('Error loading data:', error);
+      });
+  });
+
+  document.getElementById('add-season').addEventListener('click', async () => {
+    const seasonNumber = prompt('Enter the season number (e.g., 16):');
+    if (seasonNumber) {
+      try {
+        const response = await fetch('/api/seasons', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ seasonNumber })
+        });
+
+        if (response.ok) {
+          document.getElementById('season-select').innerHTML = '<option value="data">Select Season</option>';
+          await loadSeasons();
+          showToast('Season created successfully!', 'success');
+        }
+      } catch (error) {
+        showToast('Error creating season!', 'error');
+      }
+    }
+  });
+
+  loadSeasons();
 </script>
 </body>
 </html>
