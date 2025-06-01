@@ -430,6 +430,44 @@
     // Store the data globally so we can update it
     let mapData;
 
+    // Define fixed order for win/loss/draw stats
+    const STAT_ORDER = ['won', 'lost', 'draw'];
+
+    // Function to get sort priority for stats
+    function getStatPriority(statName) {
+        const index = STAT_ORDER.indexOf(statName.toLowerCase());
+        return index === -1 ? 999 : index; // Unknown stats go to the end
+    }
+
+    // Function to sort data hierarchically
+    function sortDataHierarchically(data) {
+        // Create a deep copy to avoid modifying original data
+        const sortedData = JSON.parse(JSON.stringify(data));
+
+        // Sort each category's children (maps) alphabetically
+        if (sortedData.children) {
+            sortedData.children.forEach(category => {
+                if (category.children) {
+                    // Sort maps alphabetically
+                    category.children.sort((a, b) => a.name.localeCompare(b.name));
+
+                    // Sort each map's stats according to fixed order
+                    category.children.forEach(map => {
+                        if (map.children) {
+                            map.children.sort((a, b) => {
+                                const priorityA = getStatPriority(a.name);
+                                const priorityB = getStatPriority(b.name);
+                                return priorityA - priorityB;
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        return sortedData;
+    }
+
     // Transition control - now user controllable
     let transitionEnabled = false;
 
@@ -532,7 +570,9 @@
     let currentSlices;
 
     function updateChart() {
-        const root = d3.hierarchy(mapData);
+        // Sort the data before creating the hierarchy
+        const sortedData = sortDataHierarchically(mapData);
+        const root = d3.hierarchy(sortedData);
         root.sum(d => d.size);
 
         const slice = svg.selectAll('g.slice')
@@ -813,7 +853,10 @@
             const categoryContent = document.createElement('div');
             categoryContent.className = 'map-category-content';
 
-            category.children.forEach(map => {
+            // Sort maps alphabetically
+            const sortedMaps = [...category.children].sort((a, b) => a.name.localeCompare(b.name));
+
+            sortedMaps.forEach(map => {
                 const mapDiv = document.createElement('div');
                 mapDiv.className = 'map-item';
 
